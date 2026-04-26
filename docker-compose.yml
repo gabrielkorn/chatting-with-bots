@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama-container
+    volumes:
+      - ollama_data:/root/.ollama
+      # mount the models directory to persist the models
+    ports:
+      - "11434:11434"
+         
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file: .env
+    volumes:
+      - db_data:/data
+      - .:/app
+    depends_on:
+      - ollama
+
+volumes:
+  ollama_data:
+  db_data:

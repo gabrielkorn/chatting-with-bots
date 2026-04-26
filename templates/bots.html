@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RobotRock - Bots</title>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddd; vertical-align: top; }
+    th { background: #f5f5f5; }
+    .truncate { max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .add-form { display: flex; flex-direction: column; gap: 8px; max-width: 500px; margin-top: 12px; }
+    .add-form input, .add-form select, .add-form textarea { padding: 6px; font-size: 14px; }
+    .add-form textarea { resize: vertical; }
+  </style>
+</head>
+<body>
+  <a href="/">← Back to Chat</a>
+  <h2>Bots</h2>
+
+  <h3>Add Bot</h3>
+  <form class="add-form" method="POST" action="/bots">
+    <input type="text" name="name" placeholder="Name" required />
+    <select name="model" required>
+      {% for m in models %}
+        <option value="{{ m.name }}">{{ m.name }}</option>
+      {% endfor %}
+    </select>
+    <textarea name="system_prompt" placeholder="System prompt" rows="3"></textarea>
+    <button type="submit">Add Bot</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr><th>Name</th><th>System Prompt</th><th>Model</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for bot in bots %}
+      <tr>
+        <td>{{ bot.name }}</td>
+        <td class="truncate">{{ bot.system_prompt or '—' }}</td>
+        <td>
+          <form method="POST" action="/bots/{{ bot.id }}/model">
+            <select name="model" onchange="this.form.submit()">
+              {% for m in models %}
+                <option value="{{ m.name }}" {% if m.name == bot.model %}selected{% endif %}>{{ m.name }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        </td>
+        <td>
+          <form method="POST" action="/bots/{{ bot.id }}/delete">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
