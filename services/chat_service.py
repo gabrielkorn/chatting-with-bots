@@ -48,9 +48,11 @@ def handle_chat(conversation_id, user_message):
                (conversation_id, "user", user_message))
     db.commit()
 
-    bot_response = ollama_chat(messages, model=model)
-    bot_content = bot_response["message"]["content"]
     bot_name = bot["name"] if bot else None
+    bot_response = ollama_chat(messages, model=model)
+    if "error" in bot_response:
+        return bot_name, f"[Error: {bot_response['error']}]"
+    bot_content = bot_response["message"]["content"]
 
     db.execute("INSERT INTO messages (conversation_id, sender, content) VALUES (?, ?, ?)",
                (conversation_id, "bot", bot_content))
