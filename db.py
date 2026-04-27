@@ -1,3 +1,13 @@
+"""
+db.py
+Database connection and schema initialization for Robot Chat.
+Created: 2026-04-26
+
+Responsibilities:
+- Provides a SQLite connection with sqlite-vec loaded for vector similarity search
+- Defines and initializes tables: bots, conversations, conversation_bots, messages
+"""
+
 import os
 import sqlite3
 import sqlite_vec

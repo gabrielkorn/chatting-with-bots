@@ -1,3 +1,14 @@
+"""
+app.py
+Flask application entry point for Robot Chat.
+Created: 2026-04-26
+
+Responsibilities:
+- Defines all HTTP routes (conversations, messages, bots)
+- Initializes the database and bot embeddings on startup
+- Returns full pages or HTMX partials depending on the route
+"""
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_htmx import HTMX
 from db import init_db, get_db_connection
@@ -11,17 +22,20 @@ with app.app_context():
     init_db()
     embed_all_bots()
 
+# Home page — renders the chat layout with all conversations and bots
 @app.route("/")
 def index():
     conversations = get_conversations()
     all_bots = get_db_connection().execute("SELECT id, name FROM bots ORDER BY name").fetchall()
     return render_template("index.html", conversations=conversations, all_bots=all_bots)
 
+# Creates a new conversation and redirects to it
 @app.route("/conversations/new", methods=["POST"])
 def new_conversation():
     conversation_id = create_conversation()
     return redirect(url_for("view_conversation", conversation_id=conversation_id))
 
+# Loads a specific conversation with its messages and active bot assignments
 @app.route("/convo/<int:conversation_id>")
 def view_conversation(conversation_id):
     conversations = get_conversations()
@@ -34,6 +48,7 @@ def view_conversation(conversation_id):
     return render_template("index.html", conversations=conversations, messages=messages,
                            active_id=conversation_id, all_bots=all_bots, active_bot_ids=active_bot_ids)
 
+# Adds or removes a bot from a conversation — called by HTMX checkbox, returns 204 (no content)
 @app.route("/convo/<int:conversation_id>/bots/<int:bot_id>/toggle", methods=["POST"])
 def toggle_conversation_bot(conversation_id, bot_id):
     db = get_db_connection()
@@ -50,6 +65,7 @@ def toggle_conversation_bot(conversation_id, bot_id):
     db.commit()
     return "", 204
 
+# Receives a user message, gets a bot reply, and returns an HTMX partial to append to the chat
 @app.route("/message/send", methods=["POST"])
 def post_message():
     message = request.form["message"]
@@ -57,12 +73,14 @@ def post_message():
     bot_name, reply = handle_chat(conversation_id, message)
     return render_template("message.html", message=message, reply=reply, bot_name=bot_name)
 
+# Bot management page — lists all bots and available Ollama models
 @app.route("/bots")
 def bots():
     all_bots = get_db_connection().execute("SELECT * FROM bots ORDER BY created_at DESC").fetchall()
     models = get_models()
     return render_template("bots.html", bots=all_bots, models=models)
 
+# Creates a new bot and generates its vector embedding from the system prompt
 @app.route("/bots", methods=["POST"])
 def create_bot():
     db = get_db_connection()
@@ -78,6 +96,7 @@ def create_bot():
     store_bot_vector(cursor.lastrowid)
     return redirect(url_for("bots"))
 
+# Deletes a bot and its conversation assignments
 @app.route("/bots/<int:bot_id>/delete", methods=["POST"])
 def delete_bot(bot_id):
     db = get_db_connection()
@@ -85,6 +104,7 @@ def delete_bot(bot_id):
     db.commit()
     return redirect(url_for("bots"))
 
+# Updates the Ollama model assigned to a bot
 @app.route("/bots/<int:bot_id>/model", methods=["POST"])
 def update_bot_model(bot_id):
     db = get_db_connection()

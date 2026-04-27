@@ -1,3 +1,14 @@
+"""
+services/bot_service.py
+Manages bot vector embeddings and similarity-based bot selection for Robot Chat.
+Created: 2026-04-26
+
+Responsibilities:
+- Generates and stores vector embeddings of bot system prompts via Ollama
+- Finds the best matching bot for a user message using cosine similarity
+- Prioritizes bots active in the current conversation over the global pool
+"""
+
 import os
 import struct
 import requests
@@ -8,6 +19,10 @@ OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://ollama:11434")
 EMBED_MODEL = "qwen:0.5b"
 
 def _embed(text):
+    """
+    Sends text to Ollama's embedding endpoint and returns a float vector.
+    Returns None if the request fails, which causes bot selection to be skipped.
+    """
     try:
         response = requests.post(f"{OLLAMA_API_URL}/api/embed",
                                  json={"model": EMBED_MODEL, "input": text}, timeout=30)
@@ -18,9 +33,14 @@ def _embed(text):
         return None
 
 def _pack(vector):
+    """Packs a float vector into binary — required format for sqlite-vec storage and comparison."""
     return struct.pack(f"{len(vector)}f", *vector)
 
 def store_bot_vector(bot_id):
+    """
+    Generates a vector embedding from a bot's system prompt and persists it to the database.
+    Called when a bot is created so it is ready for similarity search immediately.
+    """
     db = get_db_connection()
     bot = db.execute("SELECT system_prompt FROM bots WHERE id = ?", (bot_id,)).fetchone()
     if not bot or not bot["system_prompt"]:
@@ -32,6 +52,10 @@ def store_bot_vector(bot_id):
         db.commit()
 
 def embed_all_bots():
+    """
+    Backfills embeddings for any bots that do not have one yet.
+    Runs at startup to handle bots added before the embedding logic existed.
+    """
     db = get_db_connection()
     bots = db.execute(
         "SELECT id FROM bots WHERE system_prompt IS NOT NULL AND system_prompt_vector IS NULL"
@@ -40,6 +64,10 @@ def embed_all_bots():
         store_bot_vector(bot["id"])
 
 def find_best_bot(user_message, conversation_id=None):
+    """
+    Returns the bot whose system prompt is most semantically similar to the user's message.
+    Prefers bots assigned to the current conversation; falls back to all bots if none match.
+    """
     vector = _embed(user_message)
     if not vector:
         return None
