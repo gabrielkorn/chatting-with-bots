@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RobotRock</title>
+  <title>RobotChat</title>
   <style>
     body { display: flex; height: 100vh; margin: 0; font-family: sans-serif; }
     #bot-panel { width: 180px; border-left: 1px solid #ccc; display: flex; flex-direction: column; overflow-y: auto; }
@@ -27,7 +27,6 @@
     {% for conv in conversations %}
       <a href="/convo/{{ conv.id }}" {% if conv.id == active_id %}class="active"{% endif %}>{{ conv.name }}</a>
     {% endfor %}
-    <a href="/bots" style="margin-top: auto; color: #666; font-size: 13px;">Manage Bots</a>
   </div>
   <div id="chat-area">
     <div id="chat-window">
@@ -36,7 +35,7 @@
       {% endfor %}
     </div>
     {% if active_id %}
-    <form id="send-form" hx-post="/message/send" hx-target="#chat-window" hx-swap="beforeend">
+    <form id="send-form" hx-post="/message/send" hx-target="#chat-window" hx-swap="beforeend" hx-on::after-request="this.reset()">
       <input type="hidden" name="conversation_id" value="{{ active_id }}" />
       <input type="text" name="message" autocomplete="off" />
       <button type="submit">Send</button>
@@ -45,7 +44,7 @@
   </div>
   {% if all_bots %}
   <div id="bot-panel">
-    <div class="panel-title">Bots</div>
+    <div class="panel-title">Bots active in the chat</div>
     {% for bot in all_bots %}
     <label>
       {% if active_id %}
@@ -60,6 +59,7 @@
       {{ bot.name }}
     </label>
     {% endfor %}
+    <a href="/bots" style="margin-top: auto; display: block; padding: 8px 10px; font-size: 13px; color: #666; text-decoration: none; border-top: 1px solid #eee;">Manage Bots</a>
   </div>
   {% endif %}
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
