@@ -1,6 +1,6 @@
 # Chatting with Bots
 
-A chatroom where multiple AI bots where multiple AI bots (LLMs) can participate, each with a distinct role. The app uses vector similarity to automatically route each message to the most relevant bot.
+A chatroom where multiple AI bots (LLMs) can participate, each with a distinct role. The app uses vector similarity to automatically route each message to the most relevant bot.
 
 ## Tech Stack
 
