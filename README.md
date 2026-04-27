@@ -90,6 +90,7 @@ Any model available on [ollama.com/library](https://ollama.com/library) can be u
 ```bash
 docker exec ollama-container ollama pull llama3.2:1b
 docker exec ollama-container ollama pull phi3:mini
+docker exec ollama-container ollama pull granite4:350m-h 
 ```
 
 Once pulled, models appear in the dropdown when creating or editing a bot.
