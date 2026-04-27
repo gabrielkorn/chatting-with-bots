@@ -1,7 +1,8 @@
+import os
 import sqlite3
 import sqlite_vec
 
-DB_PATH = 'app.db'
+DB_PATH = os.getenv("DATABASE_PATH", "app.db")
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)

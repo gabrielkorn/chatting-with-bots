@@ -1,9 +1,10 @@
+import os
 import struct
 import requests
 from flask import current_app
 from db import get_db_connection
 
-OLLAMA_API_URL = "http://ollama:11434"
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://ollama:11434")
 EMBED_MODEL = "qwen:0.5b"
 
 def _embed(text):

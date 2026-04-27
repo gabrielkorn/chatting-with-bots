@@ -1,7 +1,8 @@
+import os
 import requests
 from flask import current_app
 
-OLLAMA_API_URL = "http://ollama:11434" #"http://localhost:11434/v1/ollama"
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://ollama:11434") #"http://localhost:11434/v1/ollama"
 
 # Function to send a messages to the Ollama API and get a response
 def chat(messages, model="qwen:0.5b"):
