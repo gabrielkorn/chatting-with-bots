@@ -31,7 +31,7 @@
   <div id="chat-area">
     <div id="chat-window">
       {% for msg in messages %}
-        <div class="message {{ msg.sender }}">{{ msg.content }}</div>
+        <div class="message {{ msg.sender }}"><strong>{{ msg.sender }}:</strong> {{ msg.content }}</div>
       {% endfor %}
     </div>
     {% if active_id %}
