@@ -5,7 +5,7 @@ A chatroom where multiple AI bots (LLMs) can participate, each with a distinct r
 ## Tech Stack
 
 - **Backend**: Python / Flask
-- **Frontend**: HTML + HTMX (no JS framework)
+- **Frontend**: HTML + HTMX + Tailwind
 - **Database**: SQLite3 + [sqlite-vec] (https://github.com/asg017/sqlite-vec) for vector similarity
 - **AI**: [Ollama](https://ollama.com) for running local LLMs
 - **Containers**: Docker Compose
