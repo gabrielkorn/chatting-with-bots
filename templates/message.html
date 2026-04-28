@@ -1,2 +1,9 @@
-<div class="message user">{{ message }}</div>
-<div class="message bot">{% if bot_name %}<strong>{{ bot_name }}:</strong> {% endif %}{{ reply }}</div>
+<div class="flex justify-end mb-2">
+  <div class="bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[70%] text-sm leading-relaxed shadow-sm">{{ message }}</div>
+</div>
+<div class="flex justify-start mb-2">
+  <div class="bg-white text-slate-800 rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-[70%] text-sm leading-relaxed shadow-sm border border-slate-100">
+    {% if bot_name %}<span class="block text-xs font-semibold text-slate-400 mb-1">{{ bot_name }}</span>{% endif %}
+    {{ reply }}
+  </div>
+</div>

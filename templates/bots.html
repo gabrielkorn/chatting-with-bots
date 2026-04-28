@@ -1,60 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Manage - Bots</title>
-  <style>
-    body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddd; vertical-align: top; }
-    th { background: #f5f5f5; }
-    .truncate { max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .add-form { display: flex; flex-direction: column; gap: 8px; max-width: 500px; margin-top: 12px; }
-    .add-form input, .add-form select, .add-form textarea { padding: 6px; font-size: 14px; }
-    .add-form textarea { resize: vertical; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Bots — RobotChat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <a href="/">← Back to Chat</a>
-  <h2>Bots</h2>
+<body class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
+  <div class="max-w-4xl mx-auto px-6 py-10">
 
-  <h3>Add Bot</h3>
-  <form class="add-form" method="POST" action="/bots">
-    <input type="text" name="name" placeholder="Name" required />
-    <select name="model" required>
-      {% for m in models %}
-        <option value="{{ m.name }}">{{ m.name }}</option>
-      {% endfor %}
-    </select>
-    <textarea name="system_prompt" placeholder="System prompt - this determines the bot's behavior and the type of responses they provide" rows="3"></textarea>
-    <button type="submit">Add Bot</button>
-  </form>
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+      <a href="/" class="text-sm text-slate-400 hover:text-slate-700 transition-colors">← Back to Chat</a>
+      <h1 class="text-xl font-semibold">Bots</h1>
+    </div>
 
-  <table>
-    <thead>
-      <tr><th>Name</th><th>System Prompt</th><th>Model</th><th></th></tr>
-    </thead>
-    <tbody>
-      {% for bot in bots %}
-      <tr>
-        <td>{{ bot.name }}</td>
-        <td class="truncate">{{ bot.system_prompt or '—' }}</td>
-        <td>
-          <form method="POST" action="/bots/{{ bot.id }}/model">
-            <select name="model" onchange="this.form.submit()">
-              {% for m in models %}
-                <option value="{{ m.name }}" {% if m.name == bot.model %}selected{% endif %}>{{ m.name }}</option>
-              {% endfor %}
-            </select>
-          </form>
-        </td>
-        <td>
-          <form method="POST" action="/bots/{{ bot.id }}/delete">
-            <button type="submit">Delete</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <!-- Add Bot form -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8">
+      <h2 class="text-sm font-semibold text-slate-700 mb-4">Add Bot</h2>
+      <form method="POST" action="/bots" class="flex flex-col gap-3">
+        <div class="grid grid-cols-2 gap-3">
+          <input type="text" name="name" placeholder="Name" required
+                 class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" />
+          <select name="model" required
+                  class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors">
+            {% for m in models %}
+              <option value="{{ m.name }}">{{ m.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <textarea name="system_prompt" rows="3"
+                  placeholder="System prompt — this determines the bot's behavior and the type of responses they provide"
+                  class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors resize-y"></textarea>
+        <div>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors shadow-sm">
+            Add Bot
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Bot table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
+            <th class="text-left px-5 py-3 font-medium">Name</th>
+            <th class="text-left px-5 py-3 font-medium">System Prompt</th>
+            <th class="text-left px-5 py-3 font-medium">Model</th>
+            <th class="px-5 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for bot in bots %}
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-5 py-3 font-medium text-slate-800">{{ bot.name }}</td>
+            <td class="px-5 py-3 text-slate-400 max-w-xs truncate">{{ bot.system_prompt or '—' }}</td>
+            <td class="px-5 py-3">
+              <form method="POST" action="/bots/{{ bot.id }}/model">
+                <select name="model" onchange="this.form.submit()"
+                        class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  {% for m in models %}
+                    <option value="{{ m.name }}" {% if m.name == bot.model %}selected{% endif %}>{{ m.name }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </td>
+            <td class="px-5 py-3">
+              <form method="POST" action="/bots/{{ bot.id }}/delete">
+                <button type="submit" class="text-red-400 hover:text-red-600 text-sm transition-colors font-medium">
+                  Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </body>
 </html>
